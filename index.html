@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Kurokesu Motorized Zoom Lens!</title>
+    </head>
+    <body>
+        <!-- All of the Node.js APIs are available in this renderer process. -->
+        We are using Node.js <script>document.write(process.versions.node)</script>,
+        Chromium <script>document.write(process.versions.chrome)</script>,
+        Electron <script>document.write(process.versions.electron)</script>,
+        and Serialport <script>document.write(require('serialport/package').version)</script>.
+
+        <div id="error"></div>
+        <div id="ports"></div>
+        <select id="target-port"></select>
+        <input id="x-range" type="range" min="0" max="55000" value="0" step="100" oninput="r.sendCommand()">
+        <input id="y-range" type="range" min="0" max="21000" value="0" step="100" oninput="r.sendCommand()">
+        <input type="button" value="Close" onclick="r.closePort()">
+        <br>
+        X: <span id="feedback-x"></span> &nbsp;
+        Y: <span id="feedback-y"></span>
+    </body>
+
+    <script>
+        // You can also require other files to run in this process
+        const r = require('./renderer.js');
+
+        r.refreshPortList();
+    </script>
+</html>
