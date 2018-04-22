@@ -3,6 +3,8 @@
 // All of the Node.js APIs are available in this process.
 
 const SerialPort = require('serialport');
+const Readline = SerialPort.parsers.Readline;
+
 const createTable = require('data-table');
 
 const BAUDRATE = 112000;
@@ -16,7 +18,7 @@ function refreshPorts() {
             targetPorts.removeChild(targetPorts.firstChild);
         }
 
-        console.log('ports', ports);
+        console.log('PORTS: ', ports);
         if (err) {
             document.getElementById('error').textContent = err.message;
             return;
@@ -63,24 +65,14 @@ function sendCommand() {
             console.error('Error: ', err.message);
         });
 
+        const parser = openedPorts[portVal].pipe(new Readline({ delimiter: '!' }));
         let lastLine = '';
-        openedPorts[portVal].on('readable', err => {
-            if (err) {
-                console.error('Error: ', err.message);
-            }
-
-            const data = openedPorts[portVal].read().toString().split('\n');
-            //console.log(data);
-
-            if (data.length < 3) {
+        parser.on('data', line => {
+            if (!line || line === lastLine || line.charAt(0) !== ',' || line.indexOf('\n') !== line.length-1) {
                 return;
             }
-
-            const line = data[data.length-2];
-
-            if (line === lastLine) {
-                return;
-            }
+            lastLine = line;
+            console.log(line);
 
             const feedback = {};
             const props = line.split(',');
@@ -91,15 +83,11 @@ function sendCommand() {
                 }
             });
 
-            console.log(feedback);
-
-            lastLine = line;
-
+            //console.log(feedback);
             //xRange.value = feedback['X'];
             //yRange.value = feedback['Y'];
 
-            document.getElementById('feedback-x').textContent = feedback['X'];
-            document.getElementById('feedback-y').textContent = feedback['Y'];
+            document.getElementById('feedback').textContent = JSON.stringify(feedback, null, 2);
         });
     }
 
@@ -111,7 +99,7 @@ function sendCommand() {
             return console.error('Error on write: ', err.message);
         }
 
-        console.info('command sent');
+        console.info('COMMAND SENT', xVal, yVal);
     });
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "kurokesu-zoom-lens",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A test tool for the kurokesu motorized zoom lens device.",
   "main": "main.js",
   "scripts": {
