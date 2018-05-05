@@ -1,3 +1,4 @@
+'use strict';
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
@@ -48,11 +49,8 @@ function refreshPorts() {
 module.exports.refreshPortList = refreshPorts;
 
 const openedPorts = {};
-function sendCommand() {
+function openPort() {
     const portVal = document.getElementById('target-port').value;
-
-    const xVal = document.getElementById('x-range').value;
-    const yVal = document.getElementById('y-range').value;
 
     if (!openedPorts[portVal]) {
         openedPorts[portVal] = new SerialPort(portVal, {
@@ -61,17 +59,15 @@ function sendCommand() {
 
         openedPorts[portVal].on('open', () => {
             console.log(portVal + ' OPENED');
+        });
 
-            setMotorsPositions({
-                comName: portVal,
-                x: xVal,
-                y: yVal
-            });
+        openedPorts[portVal].on('close', () => {
+            console.log(portVal + ' CLOSED');
         });
 
         // Open errors will be emitted as an error event
         openedPorts[portVal].on('error', err => {
-            console.error('Error: ', err.message);
+            console.error(err);
         });
 
         const parser = openedPorts[portVal].pipe(new Readline({ delimiter: '!' }));
@@ -93,20 +89,15 @@ function sendCommand() {
             });
 
             //console.log(feedback);
-            //xRange.value = feedback['X'];
-            //yRange.value = feedback['Y'];
+            document.getElementById('x-feedback').value = feedback['X'];
+            document.getElementById('y-feedback').value = feedback['Y'];
 
             document.getElementById('feedback').textContent = JSON.stringify(feedback, null, 2);
         });
-    } else {
-        setMotorsPositions({
-            comName: portVal,
-            x: xVal,
-            y: yVal
-        });
     }
+    // else: warn already open
 }
-module.exports.sendCommand = sendCommand;
+module.exports.openPort = openPort;
 
 /**
  * G0
@@ -124,7 +115,7 @@ function setMotorsPositions({comName, x=0, y=0}) {
 
     openedPorts[comName].write(`G0 X${x} Y${y}\n`, err => {
         if (err) {
-            return console.error('Error on write: ', err.message);
+            return console.error('Error on write: ', err);
         }
 
         console.info('POSITION SENT', x, y);
@@ -147,7 +138,7 @@ function setMotorsCurrentPositions({comName, x=0, y=0}) {
 
     openedPorts[comName].write(`G92 X${x} Y${y}\n`, err => {
         if (err) {
-            return console.error('Error on write: ', err.message);
+            return console.error('Error on write: ', err);
         }
 
         console.info('SET CURRENT POSITION SENT', x, y);
@@ -168,7 +159,7 @@ function stopMotors({comName}) {
 
     openedPorts[comName].write(`M0\n`, err => {
         if (err) {
-            return console.error('Error on write: ', err.message);
+            return console.error('Error on write: ', err);
         }
 
         console.info('STOP SENT');
@@ -194,7 +185,7 @@ function setMotorsMovementPower({comName, power=1}) {
 
     openedPorts[comName].write(`M98 R${power}\n`, err => {
         if (err) {
-            return console.error('Error on write: ', err.message);
+            return console.error('Error on write: ', err);
         }
 
         console.info('SET POWER SENT', power);
@@ -216,7 +207,7 @@ function setMotorsMovementSpeed({comName, speed=600}) {
 
     openedPorts[comName].write(`M99 R${speed}\n`, err => {
         if (err) {
-            return console.error('Error on write: ', err.message);
+            return console.error('Error on write: ', err);
         }
 
         console.info('SET SPEED SENT', speed);
@@ -232,12 +223,26 @@ function closePort() {
 
     openedPorts[portVal].close(err => {
         if (err) {
-            console.error('Error: ', err);
+            console.error(err);
         }
+
         delete openedPorts[portVal];
-    }, console.error);
+    }, console.log);
 }
 module.exports.closePort = closePort;
+
+function setPositions() {
+    const comName = document.getElementById('target-port').value;
+    const x = document.getElementById('x-range').value;
+    const y = document.getElementById('y-range').value;
+
+    setMotorsPositions({
+        comName,
+        x,
+        y
+    });
+}
+module.exports.setPositions = setPositions;
 
 function stop() {
     const comName = document.getElementById('target-port').value;

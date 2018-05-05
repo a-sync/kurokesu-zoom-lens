@@ -10,19 +10,28 @@
         Chromium <script>document.write(process.versions.chrome)</script>,
         Electron <script>document.write(process.versions.electron)</script>,
         and Serialport <script>document.write(require('serialport/package').version)</script>.
+        <br>
 
-        <div id="error"></div>
-        <div id="ports"></div>
-        <select id="target-port"></select>
-        <input id="x-range" type="range" min="0" max="55000" value="0" step="100" oninput="r.sendCommand()">
-        <input id="y-range" type="range" min="0" max="21000" value="0" step="100" oninput="r.sendCommand()">
+        <select id="target-port"></select> <input type="button" value="Open" onclick="r.openPort()"> <input type="button" value="Close" onclick="r.closePort()">
+        <br>
+
+        <input id="x-range" type="range" min="0" max="55000" value="0" step="10" oninput="r.setPositions()" style="width:90%" autofocus>
+        <input id="x-feedback" type="range" min="0" max="55000" value="0" style="width:90%;opacity:.8;zoom: .4" disabled>
+        <br>
+
+        <input id="y-range" type="range" min="0" max="21000" value="0" step="10" oninput="r.setPositions()" style="width:90%">
+        <input id="y-feedback" type="range" min="0" max="21000" value="0" style="width:90%;opacity:.8;zoom: .4" disabled>
+        <br>
+
         <input type="button" value="Stop" onclick="r.stop()">
         <input type="button" value="Calibrate Zero" onclick="if(confirm('Are you sure?')){r.setZero();}">
         Speed: <select onchange="r.setSpeed(this.value)"><option>600</option><option>500</option><option>400</option><option>300</option><option>200</option><option>100</option></select>
         Power: <select onchange="r.setPower(this.value)"><option>1</option><option>2</option><option>3</option><option>4</option></select>
-        <input type="button" value="Close" onclick="r.closePort()">
         <br>
+
         <pre id="feedback"></pre>
+        <div id="error"></div>
+        <div id="ports"></div>
     </body>
 
     <script>

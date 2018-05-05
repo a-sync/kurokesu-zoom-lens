@@ -1,1 +1,6 @@
-# kurokesu-zoom-lens
+# Installing & running
+```
+npm i
+npm start
+```
+
