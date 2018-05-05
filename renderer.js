@@ -192,12 +192,12 @@ function setMotorsMovementPower({comName, power=1}) {
         return;
     }
 
-    openedPorts[comName].write(`M98 R${speed}\n`, err => {
+    openedPorts[comName].write(`M98 R${power}\n`, err => {
         if (err) {
             return console.error('Error on write: ', err.message);
         }
 
-        console.info('SET POWER SENT', speed);
+        console.info('SET POWER SENT', power);
     });
 }
 
